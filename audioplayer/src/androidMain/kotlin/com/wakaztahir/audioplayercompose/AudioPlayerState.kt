@@ -168,19 +168,3 @@ actual class AudioPlayerState actual constructor(private val scope: CoroutineSco
     }
 
 }
-
-@Composable
-fun rememberAudioPlayerState(path: String): AudioPlayerState {
-    val scope = rememberCoroutineScope()
-    val state = remember { AudioPlayerState(scope) }
-    LaunchedEffect(path) {
-        if (state.audioPath != path) {
-            state.updatePath(path)
-        }
-    }
-    DisposableEffect(state) {
-        state.initialize(path)
-        onDispose { state.destroyPlayer() }
-    }
-    return state
-}
