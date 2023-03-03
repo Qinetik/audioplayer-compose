@@ -1,6 +1,7 @@
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
+    id("org.jetbrains.compose")
     id("maven-publish")
 }
 
@@ -23,7 +24,8 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-
+                api(compose.runtime)
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
             }
         }
         val commonTest by getting {
