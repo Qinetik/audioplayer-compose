@@ -1,29 +1,48 @@
 package com.wakaztahir.audioplayercompose
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import org.w3c.dom.Audio
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventListener
 
-actual class AudioPlayerState actual constructor(scope: CoroutineScope) {
+actual class AudioPlayerState actual constructor(private val scope: CoroutineScope) {
 
     actual var audioPath: String = ""
         private set
 
-    actual var state: PlayerPlayState = PlayerPlayState.Stopped
+    actual var state: PlayerPlayState by mutableStateOf(PlayerPlayState.Stopped)
         private set
 
-    actual var progress: Float = 0f
-        private set
+    actual var progress: Float by mutableStateOf(0f)
 
-    actual var hasPlayed: Boolean = false
-        private set
+    actual var isReady: Boolean
+        get() = elem?.readyState?.toInt() == 4
+        set(_) {
+            // do nothing
+        }
+
+    private val readyListeners = mutableListOf<() -> Unit>()
+    private val completionListeners = mutableListOf<() -> Unit>()
+    private fun MutableList<() -> Unit>.invoke() {
+        val itr = listIterator()
+        while (itr.hasNext()) {
+            itr.next().invoke()
+            itr.remove()
+        }
+    }
 
     private var elem: Audio? = null
 
     actual fun initialize(path: String) {
         this.audioPath = path
-        this.elem = Audio(path)
+        this.elem = Audio(path).apply {
+            addEventListener("ended", {
+                completionListeners.invoke()
+            })
+        }
     }
 
     actual fun destroyPlayer() {
@@ -34,7 +53,13 @@ actual class AudioPlayerState actual constructor(scope: CoroutineScope) {
         audioPath = path
     }
 
-    actual fun startPlaying(time: Int) = seekAndAfter(time) {
+    actual fun startPlaying(time: Int) {
+        elem?.currentTime = time.toDouble()
+        startUpdatingProgress()
+        elem?.play()
+    }
+
+    actual fun startPlaying() {
         startUpdatingProgress()
         elem?.play()
     }
@@ -51,29 +76,21 @@ actual class AudioPlayerState actual constructor(scope: CoroutineScope) {
         elem?.pause()
     }
 
-    private fun seekAndAfter(time: Int, after: () -> Unit) {
-        if (elem?.readyState?.toInt() == 4) {
-            // The audio is ready to play
-            elem?.currentTime = time.toDouble()
-            after()
-        } else {
-            elem?.addEventListener("canplaythrough", {
-                elem?.currentTime = time.toDouble()
-                after()
-            })
-        }
+
+    actual fun seekTo(time: Int) {
+        elem?.currentTime = time.toDouble()
     }
 
-    actual fun seekTo(time: Int) = seekAndAfter(time) {
-        // do nothing
+    actual fun seekTo(progress: Float) {
+        seekTo((progress * getDuration()).toInt())
     }
 
     actual fun getDuration(): Int {
-        return 0
+        return elem?.duration?.toInt() ?: 0
     }
 
     actual fun getCurrentPosition(): Int {
-        return 0
+        return elem?.currentTime?.toInt() ?: 0
     }
 
     private val ProgressUpdater = object : EventListener {
@@ -90,6 +107,21 @@ actual class AudioPlayerState actual constructor(scope: CoroutineScope) {
 
     actual fun stopUpdatingProgress() {
         elem?.removeEventListener("timeupdate", ProgressUpdater)
+    }
+
+    actual fun invokeOnReady(block: () -> Unit) {
+        if (elem?.readyState?.toInt() == 4) {
+            // The audio is ready to play
+            block()
+        } else {
+            elem?.addEventListener("canplaythrough", {
+                block()
+            })
+        }
+    }
+
+    actual fun invokeOnCompletion(block: () -> Unit) {
+        completionListeners.add(block)
     }
 
 }

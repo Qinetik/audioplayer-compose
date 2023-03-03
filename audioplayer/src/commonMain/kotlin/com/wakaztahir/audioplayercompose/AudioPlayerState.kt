@@ -13,8 +13,12 @@ expect class AudioPlayerState(scope: CoroutineScope) {
     var progress: Float
         private set
 
-    var hasPlayed: Boolean
+    var isReady : Boolean
         private set
+
+    fun invokeOnReady(block : ()->Unit)
+
+    fun invokeOnCompletion(block: () -> Unit)
 
     fun initialize(path: String)
 
@@ -22,7 +26,9 @@ expect class AudioPlayerState(scope: CoroutineScope) {
 
     fun updatePath(path: String)
 
-    fun startPlaying(time: Int = 0)
+    fun startPlaying()
+
+    fun startPlaying(time: Int)
 
     fun pausePlaying()
 
@@ -31,6 +37,8 @@ expect class AudioPlayerState(scope: CoroutineScope) {
     fun stopPlaying()
 
     fun seekTo(time: Int)
+
+    fun seekTo(progress : Float)
 
     fun getDuration(): Int
 

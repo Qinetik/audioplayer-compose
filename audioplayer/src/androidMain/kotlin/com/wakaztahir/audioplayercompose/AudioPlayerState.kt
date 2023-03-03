@@ -19,12 +19,22 @@ actual class AudioPlayerState actual constructor(private val scope: CoroutineSco
     actual var progress: Float by mutableStateOf(0f)
         private set
 
-    actual var hasPlayed: Boolean = false
+    actual var isReady: Boolean = false
         private set
 
+    private var hasCompleted: Boolean = false
     private var player: MediaPlayer? = null
-    private var prepared: Boolean = false
     private var updateJob: Job? = null
+
+    private val readyListeners = mutableListOf<() -> Unit>()
+    private val completionListeners = mutableListOf<() -> Unit>()
+    private fun MutableList<() -> Unit>.invoke() {
+        val itr = listIterator()
+        while (itr.hasNext()) {
+            itr.next().invoke()
+            itr.remove()
+        }
+    }
 
     actual fun initialize(path: String) {
         this.audioPath = path
@@ -35,12 +45,16 @@ actual class AudioPlayerState actual constructor(private val scope: CoroutineSco
                 .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                 .build()
         )
+        player!!.setDataSource(audioPath)
+        player!!.prepare()
         player!!.setOnPreparedListener {
-            prepared = true
+            isReady = true
+            readyListeners.invoke()
         }
         player!!.setOnCompletionListener {
             state = PlayerPlayState.Stopped
-            hasPlayed = true
+            hasCompleted = true
+            completionListeners.invoke()
         }
     }
 
@@ -52,13 +66,21 @@ actual class AudioPlayerState actual constructor(private val scope: CoroutineSco
 
     actual fun updatePath(path: String) {
         audioPath = path
+        isReady = false
+        hasCompleted = false
+        player!!.setDataSource(audioPath)
+        player!!.prepare()
     }
 
     actual fun startPlaying(time: Int) {
         if (player == null) return
-        player!!.setDataSource(audioPath)
-        player!!.prepare()
         player!!.seekTo(time)
+        startPlaying()
+    }
+
+    actual fun startPlaying() {
+        if (player == null) return
+        hasCompleted = false
         player!!.start()
         startUpdatingProgress()
     }
@@ -71,7 +93,7 @@ actual class AudioPlayerState actual constructor(private val scope: CoroutineSco
     }
 
     actual fun resumePlaying() {
-        if (player?.isPlaying == false && prepared) {
+        if (player?.isPlaying == false && isReady) {
             player!!.start()
             startUpdatingProgress()
         }
@@ -83,8 +105,14 @@ actual class AudioPlayerState actual constructor(private val scope: CoroutineSco
         }
     }
 
+
     actual fun seekTo(time: Int) {
         player?.seekTo(time)
+    }
+
+    actual fun seekTo(progress: Float) {
+        this.progress = progress
+        seekTo((getDuration() * progress).toInt())
     }
 
     actual fun getDuration(): Int {
@@ -126,6 +154,19 @@ actual class AudioPlayerState actual constructor(private val scope: CoroutineSco
             state = PlayerPlayState.Stopped
         }
     }
+
+    actual fun invokeOnReady(block: () -> Unit) {
+        if (isReady) {
+            block()
+        } else {
+            readyListeners.add(block)
+        }
+    }
+
+    actual fun invokeOnCompletion(block: () -> Unit) {
+        completionListeners.add(block)
+    }
+
 }
 
 @Composable
