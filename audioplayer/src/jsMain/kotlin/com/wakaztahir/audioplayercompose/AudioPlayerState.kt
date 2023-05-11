@@ -3,8 +3,12 @@ package com.wakaztahir.audioplayercompose
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
 import org.w3c.dom.Audio
+import org.w3c.dom.COMPLETE
+import org.w3c.dom.DocumentReadyState
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventListener
 
@@ -60,8 +64,14 @@ actual class AudioPlayerState actual constructor(private val scope: CoroutineSco
     }
 
     actual fun startPlaying() {
-        startUpdatingProgress()
-        elem?.play()
+        elem?.play()?.catch {
+            window.setTimeout({
+                console.log("audio playing failed , retrying in a second", it)
+                startPlaying()
+            }, 1000)
+        }?.then {
+            startUpdatingProgress()
+        }
     }
 
     actual fun pausePlaying() {

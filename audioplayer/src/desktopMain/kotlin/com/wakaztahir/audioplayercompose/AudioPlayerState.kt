@@ -4,9 +4,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
-import javax.sound.sampled.*
+import java.net.URL
+import java.util.*
+import javax.sound.sampled.AudioSystem
+import javax.sound.sampled.Clip
+import javax.sound.sampled.DataLine
+import javax.sound.sampled.LineEvent
 
 actual class AudioPlayerState actual constructor(private val scope: CoroutineScope) {
 
@@ -36,9 +43,49 @@ actual class AudioPlayerState actual constructor(private val scope: CoroutineSco
         }
     }
 
+    private fun getExtension(fileName: String): String? {
+        try {
+            if (fileName.isEmpty()) return null
+            val len: Int = fileName.length
+            val ch: Char = fileName[len - 1]
+            if (ch == '/' || ch == '\\' || ch == '.') //in the case of . or ..
+                return ""
+            val dotInd = fileName.lastIndexOf('.')
+            val sepInd = fileName.lastIndexOf('/').coerceAtLeast(fileName.lastIndexOf('\\'))
+            return if (dotInd <= sepInd) "" else fileName.substring(dotInd + 1).lowercase(Locale.getDefault())
+        } catch (e: Throwable) {
+            e.printStackTrace()
+            return null
+        }
+    }
+
+    private fun getFromMimeType(type : String?) : String? {
+        return when(type){
+            "audio/mpeg" -> "mp3"
+            "audio/wav" -> "wav"
+            "audio/x-aiff" -> "aif"
+            "audio/vnd.wav" -> "wav"
+            "audio/aac" -> "aac"
+            else -> null
+        }
+    }
+
+    private fun createTemporaryFile(path: String): File {
+        val url = URL(path)
+        val stream = url.openStream()
+        val tempFile = File.createTempFile("temp", getFromMimeType(url.openConnection().contentType) ?: getExtension(path))
+        stream.use { inp ->
+            tempFile.outputStream().use { out ->
+                inp.copyTo(out)
+            }
+        }
+        return tempFile
+    }
+
     actual fun initialize(path: String) {
         this.audioPath = path
-        val file = File(path)
+        val file =
+            if (path.startsWith("http://") || path.startsWith("https://")) createTemporaryFile(path) else File(path)
         val audioInputStream = AudioSystem.getAudioInputStream(file)
         val format = audioInputStream.format
         val info = DataLine.Info(Clip::class.java, format)

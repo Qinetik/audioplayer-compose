@@ -30,7 +30,7 @@ kotlin {
     sourceSets {
         val jsMain by getting {
             dependencies {
-                implementation(compose.web.core)
+                implementation(compose.html.core)
                 implementation(compose.runtime)
                 implementation(project(":demo:common"))
             }
@@ -44,13 +44,7 @@ kotlin {
 }
 
 compose.experimental {
-    web.application {}
-}
+    web.application {
 
-//afterEvaluate {
-//    rootProject.extensions.configure<NodeJsRootExtension> {
-//        versions.webpackDevServer.version = "4.0.0"
-//        versions.webpackCli.version = "4.9.0"
-//        nodeVersion = "16.0.0"
-//    }
-//}
+    }
+}

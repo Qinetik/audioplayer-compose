@@ -2,9 +2,8 @@ package com.wakaztahir.audioplayercompose
 
 import androidx.compose.runtime.*
 
-
 @Composable
-fun rememberAudioPlayerState(path: String): AudioPlayerState {
+fun rememberAudioPlayerState(path: String,onAudioNotFound : (Throwable)->Unit = { it.printStackTrace() }): AudioPlayerState {
     val scope = rememberCoroutineScope()
     val state = remember { AudioPlayerState(scope) }
     LaunchedEffect(path) {
@@ -13,7 +12,11 @@ fun rememberAudioPlayerState(path: String): AudioPlayerState {
         }
     }
     DisposableEffect(state) {
-        state.initialize(path)
+        try {
+            state.initialize(path)
+        }catch(e : Exception){
+            onAudioNotFound(e)
+        }
         onDispose { state.destroyPlayer() }
     }
     return state
