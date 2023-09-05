@@ -9,14 +9,10 @@ group = "com.wakaztahir"
 version = property("version") as String
 
 kotlin {
-    android {
+    androidTarget {
         publishLibraryVariants("release")
     }
-    jvm("desktop") {
-        compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
-        }
-    }
+    jvm("desktop")
     js(IR) {
         browser()
         binaries.executable()
@@ -52,10 +48,15 @@ kotlin {
 }
 
 android {
+    namespace = "com.wakaztahir.audioplayercompose"
     compileSdk = 33
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
