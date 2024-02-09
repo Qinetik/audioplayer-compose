@@ -1,14 +1,11 @@
-package com.wakaztahir.audioplayercompose
+package org.qinetik.audioplayercompose
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
 import org.w3c.dom.Audio
-import org.w3c.dom.COMPLETE
-import org.w3c.dom.DocumentReadyState
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventListener
 

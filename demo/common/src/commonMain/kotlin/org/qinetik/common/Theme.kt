@@ -1,4 +1,4 @@
-package com.wakaztahir.common
+package org.qinetik.common
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme

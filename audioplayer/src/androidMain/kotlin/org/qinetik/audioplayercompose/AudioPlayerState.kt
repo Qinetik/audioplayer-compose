@@ -1,4 +1,4 @@
-package com.wakaztahir.audioplayercompose
+package org.qinetik.audioplayercompose
 
 import android.media.AudioAttributes
 import android.media.MediaPlayer

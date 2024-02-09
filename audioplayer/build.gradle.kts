@@ -5,7 +5,7 @@ plugins {
     id("maven-publish")
 }
 
-group = "com.wakaztahir"
+group = "org.qinetik"
 version = property("version") as String
 
 kotlin {
@@ -21,7 +21,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(compose.runtime)
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
             }
         }
         val commonTest by getting {
@@ -48,7 +48,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.wakaztahir.audioplayercompose"
+    namespace = "org.qinetik.audioplayercompose"
     compileSdk = 33
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
@@ -62,7 +62,7 @@ android {
 
 publishing {
     repositories {
-        maven("https://maven.pkg.github.com/Qawaz/audioplayer-compose") {
+        maven("https://maven.pkg.github.com/Qinetik/audioplayer-compose") {
             name = "GithubPackages"
             try {
                 credentials {

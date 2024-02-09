@@ -10,7 +10,7 @@
             android:supportsRtl="true">
         <activity
             android:exported="true"
-            android:name="com.mylibrary.demo.MainActivity"
+            android:name="com.mylibrary.demo.org.mylibrary.demo.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

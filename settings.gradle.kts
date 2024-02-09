@@ -17,13 +17,14 @@ pluginManagement {
         }
     }
     plugins {
-        kotlin("jvm").version(extra["kotlin.version"] as String).apply(false)
-        kotlin("android").version(extra["kotlin.version"] as String).apply(false)
-        kotlin("multiplatform").version(extra["kotlin.version"] as String).apply(false)
-        id("com.android.application").version(extra["agp.version"] as String).apply(false)
-        id("com.android.library").version(extra["agp.version"] as String).apply(false)
-        id("org.jetbrains.compose").version(extra["compose.version"] as String).apply(false)
-        kotlin("plugin.serialization").version(extra["kotlin.version"] as String).apply(false)
+        val kotlinVersion = extra["kotlin_version"] as String
+        kotlin("jvm").version(kotlinVersion).apply(false)
+        kotlin("android").version(kotlinVersion).apply(false)
+        kotlin("multiplatform").version(kotlinVersion).apply(false)
+        id("com.android.application").version(extra["agp_version"] as String).apply(false)
+        id("com.android.library").version(extra["agp_version"] as String).apply(false)
+        id("org.jetbrains.compose").version(extra["compose.jb.version"] as String).apply(false)
+        kotlin("plugin.serialization").version(kotlinVersion).apply(false)
     }
 }
 rootProject.name = "AudioPlayerCompose"

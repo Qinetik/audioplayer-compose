@@ -20,7 +20,7 @@ allprojects {
         google()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-        maven("https://maven.pkg.github.com/Qawaz/audioplayer-compose") {
+        maven("https://maven.pkg.github.com/Qinetik/audioplayer-compose") {
             name = "GithubPackages"
             try {
                 credentials {

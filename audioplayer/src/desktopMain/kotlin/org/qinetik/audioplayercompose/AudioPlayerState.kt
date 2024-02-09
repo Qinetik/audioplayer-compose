@@ -1,4 +1,4 @@
-package com.wakaztahir.audioplayercompose
+package org.qinetik.audioplayercompose
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

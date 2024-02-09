@@ -1,8 +1,8 @@
-package com.wakaztahir.common
+package org.qinetik.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import com.wakaztahir.audioplayercompose.rememberAudioPlayerState
+import org.qinetik.audioplayercompose.rememberAudioPlayerState
 
 @Composable
 fun CommonDemo() {
